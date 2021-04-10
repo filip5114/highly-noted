@@ -28,7 +28,7 @@ def index():
     Todo(title="Simple todo B", text="12345678910").save()
     Todo.objects(title__contains="B").update(set__text="Hello world")
     todos = Todo.objects().to_json()
-    return Response(todos, mimetype="application/json", status=200)
+    return Response(todos, mimetype="application/json", status=200, headers={'Access-Control-Allow-Origin': 'http://localhost:3000'})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
