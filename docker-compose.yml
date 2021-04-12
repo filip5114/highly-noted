@@ -35,7 +35,7 @@ services:
       build: 
             context: ./backend
             dockerfile: Dockerfile
-      command: gunicorn --bind 0.0.0.0:5000 app:app
+      command: gunicorn --bind 0.0.0.0:5000 --reload app:app
       ports:
             - "5000:5000"
       environment:
@@ -43,7 +43,7 @@ services:
             MONGODB_USERNAME: "apiuser"
             MONGODB_PASSWORD: "apipassword"
       volumes:
-            - appdata:/var/www/
+            - ./backend:/app
       depends_on: 
             - mongodb
       networks:
@@ -57,6 +57,4 @@ networks:
       driver: bridge
 volumes:
    mongodbdata:
-      driver: local
-   appdata:
       driver: local

@@ -1,25 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import axios from 'axios';
+import React from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+export default class App extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            data: [],
+            title: '',
+            value: ''
+        }
 
-export default App;
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    };
+
+    componentDidMount = () => {
+        axios.get('http://localhost:5000/api')
+            .then(res => {
+                this.setState({ data: res.data });
+            })
+    }
+
+    handleChange = event => {
+        this.setState({[event.target.name]: [event.target.value]});
+        this.setState({[event.target.name]: [event.target.value]});
+    }
+
+    handleSubmit = event => {
+        event.preventDefault();
+
+        const data = {
+            'title': this.state.title,
+            'value': this.state.value
+        };
+        axios.post(`http://localhost:5000/api/v1/todo`, data)
+            .then(res => {
+                this.setState({ data: res.data });
+            })
+    }
+
+    render() {
+        return (
+            <div>
+                <ul>
+                    { this.state.data.map(d => <li key={d.title}>{d.title}: {d.text}</li>) }
+                </ul>
+                <form onSubmit={this.handleSubmit}>
+                    <label>
+                        Title:
+                        <input type="text" name="title" value={this.state.title} onChange={this.handleChange} />
+                    </label>
+                    <label>
+                        Text:
+                        <input type="text" name="value" value={this.state.value} onChange={this.handleChange} />
+                    </label>
+                    <input type="submit" value="Send" />
+                </form>
+            </div>
+        )
+    }
+} 
