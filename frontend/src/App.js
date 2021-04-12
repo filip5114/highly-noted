@@ -19,6 +19,9 @@ export default class App extends React.Component{
             .then(res => {
                 this.setState({ data: res.data });
             })
+            .catch(error => {
+                console.log(error);
+            });
     }
 
     handleChange = event => {
@@ -37,6 +40,9 @@ export default class App extends React.Component{
             .then(res => {
                 this.setState({ data: res.data });
             })
+            .catch(error => {
+                console.log(error);
+            });
     }
 
     render() {
