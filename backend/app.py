@@ -24,12 +24,7 @@ db.init_app(app)
 @app.route("/api", methods=['GET'])
 @cross_origin(origins='http://localhost:3000')
 def index():
-    Todo.objects().delete()
-    Todo(title="Simple todo A", text="12345678910").save()
-    Todo(title="Simple todo B", text="12345678910").save()
-    Todo.objects(title__contains="B").update(set__text="Hello world")
     todos = Todo.objects().to_json()
-    print(todos)
     return Response(todos, mimetype="application/json", status=200)
 
 @app.route("/api/v1/todo", methods=['GET', 'POST'])
