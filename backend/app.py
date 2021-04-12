@@ -5,6 +5,7 @@ import logging
 from flask import Flask, Response, request
 from flask_mongoengine import MongoEngine
 from flask_cors import CORS, cross_origin
+from dbModels import Todo
 
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
@@ -20,13 +21,7 @@ app.config['CORS_HEADERS']= 'Content-Type'
 db = MongoEngine()
 db.init_app(app)
 
-class Todo(db.Document):
-    title = db.StringField(max_length=60)
-    text = db.StringField()
-    done = db.BooleanField(default=False)
-    pub_date = db.DateTimeField(default=datetime.datetime.now)
-
-@app.route("/api")
+@app.route("/api", methods=['GET'])
 @cross_origin(origins='http://localhost:3000')
 def index():
     Todo.objects().delete()
@@ -34,6 +29,7 @@ def index():
     Todo(title="Simple todo B", text="12345678910").save()
     Todo.objects(title__contains="B").update(set__text="Hello world")
     todos = Todo.objects().to_json()
+    print(todos)
     return Response(todos, mimetype="application/json", status=200)
 
 @app.route("/api/v1/todo", methods=['GET', 'POST'])
@@ -43,6 +39,17 @@ def todo():
         request_body = request.get_json()
         print(request_body)
         Todo(title=request_body.get('title')[0], text=request_body.get('value')[0]).save()
+        todos = Todo.objects().to_json()
+        return Response(todos, mimetype="application/json", status=200)
+    elif request.method == 'GET':
+        return Response('get works', status=200)
+
+@app.route("/api/v1/todo/delete", methods=['GET', 'POST'])
+@cross_origin(origins='http://localhost:3000')
+def delete_todo():
+    if request.method == 'POST':
+        request_body = request.get_json()
+        Todo.objects.get(id=request_body.get('id')).delete()
         todos = Todo.objects().to_json()
         return Response(todos, mimetype="application/json", status=200)
     elif request.method == 'GET':

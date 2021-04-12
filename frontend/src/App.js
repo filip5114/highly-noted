@@ -12,6 +12,7 @@ export default class App extends React.Component{
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.liClick = this.liClick.bind(this);
     };
 
     componentDidMount = () => {
@@ -24,13 +25,13 @@ export default class App extends React.Component{
             });
     }
 
-    handleChange = event => {
-        this.setState({[event.target.name]: [event.target.value]});
-        this.setState({[event.target.name]: [event.target.value]});
+    handleChange = e => {
+        this.setState({[e.target.name]: [e.target.value]});
+        this.setState({[e.target.name]: [e.target.value]});
     }
 
-    handleSubmit = event => {
-        event.preventDefault();
+    handleSubmit = e => {
+        e.preventDefault();
 
         const data = {
             'title': this.state.title,
@@ -45,11 +46,23 @@ export default class App extends React.Component{
             });
     }
 
+    liClick = (id, e) => {
+        e.preventDefault();
+
+        axios.post(`http://localhost:5000/api/v1/todo/delete`, {id: id})
+            .then(res => {
+                this.setState({ data: res.data });
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
     render() {
         return (
             <div>
                 <ul>
-                    { this.state.data.map(d => <li key={d.title}>{d.title}: {d.text}</li>) }
+                    { this.state.data.map(d => <li key={d._id.$oid} onClick={(e) => this.liClick(d._id.$oid, e)}>{d.title}: {d.text}</li>) }
                 </ul>
                 <form onSubmit={this.handleSubmit}>
                     <label>
