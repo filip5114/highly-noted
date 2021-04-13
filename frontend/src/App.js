@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 export default class App extends React.Component{
     constructor(props) {
@@ -12,7 +13,7 @@ export default class App extends React.Component{
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.liClick = this.liClick.bind(this);
+        this.delNote = this.delNote.bind(this);
     };
 
     componentDidMount = () => {
@@ -37,7 +38,7 @@ export default class App extends React.Component{
             'title': this.state.title,
             'value': this.state.value
         };
-        axios.post(`http://localhost:5000/api/v1/todo`, data)
+        axios.post(`http://localhost:5000/api/v1/note`, data)
             .then(res => {
                 this.setState({ data: res.data });
             })
@@ -46,10 +47,10 @@ export default class App extends React.Component{
             });
     }
 
-    liClick = (id, e) => {
+    delNote = (id, e) => {
         e.preventDefault();
 
-        axios.post(`http://localhost:5000/api/v1/todo/delete`, {id: id})
+        axios.post(`http://localhost:5000/api/v1/note/delete`, {id: id})
             .then(res => {
                 this.setState({ data: res.data });
             })
@@ -61,9 +62,6 @@ export default class App extends React.Component{
     render() {
         return (
             <div>
-                <ul>
-                    { this.state.data.map(d => <li key={d._id.$oid} onClick={(e) => this.liClick(d._id.$oid, e)}>{d.title}: {d.text}</li>) }
-                </ul>
                 <form onSubmit={this.handleSubmit}>
                     <label>
                         Title:
@@ -71,10 +69,16 @@ export default class App extends React.Component{
                     </label>
                     <label>
                         Text:
-                        <input type="text" name="value" value={this.state.value} onChange={this.handleChange} />
+                        <textarea name="value" value={this.state.value} onChange={this.handleChange} />
                     </label>
                     <input type="submit" value="Send" />
                 </form>
+                { this.state.data.map(d => 
+                    <div>
+                        <h2 onClick={(e) => this.delNote(d._id.$oid, e)}>{d.title}</h2>
+                        <ReactMarkdown source={d.text} />
+                    </div>
+                )}
             </div>
         )
     }

@@ -1,11 +1,12 @@
 import datetime
 import os
 import logging
+import markdown
  
 from flask import Flask, Response, request
 from flask_mongoengine import MongoEngine
 from flask_cors import CORS, cross_origin
-from dbModels import Todo
+from dbModels import Note
 
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
@@ -24,29 +25,28 @@ db.init_app(app)
 @app.route("/api", methods=['GET'])
 @cross_origin(origins='http://localhost:3000')
 def index():
-    todos = Todo.objects().to_json()
-    return Response(todos, mimetype="application/json", status=200)
+    notes = Note.objects().to_json()
+    return Response(notes, mimetype="application/json", status=200)
 
-@app.route("/api/v1/todo", methods=['GET', 'POST'])
+@app.route("/api/v1/note", methods=['GET', 'POST'])
 @cross_origin(origins='http://localhost:3000')
 def todo():
     if request.method == 'POST':
         request_body = request.get_json()
-        print(request_body)
-        Todo(title=request_body.get('title')[0], text=request_body.get('value')[0]).save()
-        todos = Todo.objects().to_json()
-        return Response(todos, mimetype="application/json", status=200)
+        Note(title=request_body.get('title')[0], text=request_body.get('value')[0]).save()
+        notes = Note.objects().to_json()
+        return Response(notes, mimetype="application/json", status=200)
     elif request.method == 'GET':
         return Response('get works', status=200)
 
-@app.route("/api/v1/todo/delete", methods=['GET', 'POST'])
+@app.route("/api/v1/note/delete", methods=['GET', 'POST'])
 @cross_origin(origins='http://localhost:3000')
 def delete_todo():
     if request.method == 'POST':
         request_body = request.get_json()
-        Todo.objects.get(id=request_body.get('id')).delete()
-        todos = Todo.objects().to_json()
-        return Response(todos, mimetype="application/json", status=200)
+        Note.objects.get(id=request_body.get('id')).delete()
+        notes = Note.objects().to_json()
+        return Response(notes, mimetype="application/json", status=200)
     elif request.method == 'GET':
         return Response('get works', status=200)
 
