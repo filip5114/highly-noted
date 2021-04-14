@@ -38,7 +38,7 @@ export default class App extends React.Component{
             'title': this.state.title,
             'value': this.state.value
         };
-        axios.post(`http://localhost:5000/api/v1/note`, data)
+        axios.post(`http://localhost:5000/api/v1/note/add`, data)
             .then(res => {
                 this.setState({ data: res.data });
             })
@@ -74,8 +74,8 @@ export default class App extends React.Component{
                     <input type="submit" value="Send" />
                 </form>
                 { this.state.data.map(d => 
-                    <div>
-                        <h2 onClick={(e) => this.delNote(d._id.$oid, e)}>{d.title}</h2>
+                    <div key={d.id}>
+                        <h2 onClick={(e) => this.delNote(d.id, e)}>{d.title}</h2>
                         <ReactMarkdown source={d.text} />
                     </div>
                 )}

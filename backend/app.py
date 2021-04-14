@@ -3,52 +3,44 @@ import os
 import logging
 import markdown
  
-from flask import Flask, Response, request
-from flask_mongoengine import MongoEngine
+from flask import Flask, Response, request, json
 from flask_cors import CORS, cross_origin
-from dbModels import Note
+from flask_sqlalchemy import SQLAlchemy
+
 
 logging.basicConfig(level=logging.INFO)
 app = Flask(__name__)
 
-app.config['MONGODB_SETTINGS'] = {
-    'host': os.getenv('MONGODB_HOST'),
-    'username': os.getenv('MONGODB_USERNAME'),
-    'password': os.getenv('MONGODB_PASSWORD'),
-    'db': 'webapp'
-}
-app.config['CORS_HEADERS']= 'Content-Type'
+app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@db:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = MongoEngine()
-db.init_app(app)
+from dbModels import Note, db
 
 @app.route("/api", methods=['GET'])
 @cross_origin(origins='http://localhost:3000')
 def index():
-    notes = Note.objects().to_json()
+    notes = json.dumps([note.to_dict() for note in Note.query.all()])
     return Response(notes, mimetype="application/json", status=200)
 
-@app.route("/api/v1/note", methods=['GET', 'POST'])
+@app.route("/api/v1/note/add", methods=['POST'])
 @cross_origin(origins='http://localhost:3000')
-def todo():
-    if request.method == 'POST':
-        request_body = request.get_json()
-        Note(title=request_body.get('title')[0], text=request_body.get('value')[0]).save()
-        notes = Note.objects().to_json()
-        return Response(notes, mimetype="application/json", status=200)
-    elif request.method == 'GET':
-        return Response('get works', status=200)
+def add_note():
+    request_body = request.get_json()
+    db.session.add(Note(title=request_body.get('title')[0], text=request_body.get('value')[0]))
+    db.session.commit()
+    notes = json.dumps([note.to_dict() for note in Note.query.all()])
+    return Response(notes, mimetype="application/json", status=200)
 
-@app.route("/api/v1/note/delete", methods=['GET', 'POST'])
+@app.route("/api/v1/note/delete", methods=['POST'])
 @cross_origin(origins='http://localhost:3000')
-def delete_todo():
-    if request.method == 'POST':
-        request_body = request.get_json()
-        Note.objects.get(id=request_body.get('id')).delete()
-        notes = Note.objects().to_json()
-        return Response(notes, mimetype="application/json", status=200)
-    elif request.method == 'GET':
-        return Response('get works', status=200)
+def delete_note():
+    request_body = request.get_json()
+    id = request_body.get('id')
+    Note.query.filter_by(id=id).delete()
+    db.session.commit()
+    notes = json.dumps([note.to_dict() for note in Note.query.all()])
+    return Response(notes, mimetype="application/json", status=200)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
