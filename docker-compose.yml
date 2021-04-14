@@ -30,6 +30,9 @@ services:
             POSTGRES_PASSWORD: "apipassword"
             POSTGRES_DB: "apidev"
             POSTGRES_PORT: 5432
+            DATABASE: "postgres"
+            POSTGRES_HOST: "db"
+
       volumes:
             - ./backend:/app
       depends_on: 

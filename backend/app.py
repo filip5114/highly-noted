@@ -6,6 +6,7 @@ import markdown
 from flask import Flask, Response, request, json
 from flask_cors import CORS, cross_origin
 from flask_sqlalchemy import SQLAlchemy
+from dbModels import Note, db
 
 
 logging.basicConfig(level=logging.INFO)
@@ -15,7 +16,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@db:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-from dbModels import Note, db
+db.init_app(app)
 
 @app.route("/api", methods=['GET'])
 @cross_origin(origins='http://localhost:3000')
