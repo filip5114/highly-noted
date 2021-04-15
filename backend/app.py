@@ -28,10 +28,18 @@ def index():
 @cross_origin(origins='http://localhost:3000')
 def add_note():
     request_body = request.get_json()
-    db.session.add(Note(title=request_body.get('title')[0], text=request_body.get('value')[0]))
+    db.session.add(Note(title=request_body.get('title'), text=request_body.get('value')))
     db.session.commit()
     notes = json.dumps([note.to_dict() for note in Note.query.all()])
     return Response(notes, mimetype="application/json", status=200)
+
+@app.route("/api/v1/note/edit", methods=['POST'])
+@cross_origin(origins='http://localhost:3000')
+def edit_note():
+    request_body = request.get_json()
+    Note.query.filter_by(id=request_body.get('id')).update(dict(text=request_body.get('text')))
+    db.session.commit()
+    return Response({'done'}, mimetype="application/json", status=200)
 
 @app.route("/api/v1/note/delete", methods=['POST'])
 @cross_origin(origins='http://localhost:3000')

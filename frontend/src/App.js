@@ -1,19 +1,19 @@
 import axios from 'axios';
 import React from 'react';
-import ReactMarkdown from 'react-markdown';
+// import ReactMarkdown from 'react-markdown';
+import EditableText from './EditableText';
+
+// import EditableText from './EditableText';
 
 export default class App extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
             data: [],
-            title: '',
-            value: ''
         }
 
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
         this.delNote = this.delNote.bind(this);
+        this.addNote = this.addNote.bind(this);
     };
 
     componentDidMount = () => {
@@ -26,17 +26,24 @@ export default class App extends React.Component{
             });
     }
 
-    handleChange = e => {
-        this.setState({[e.target.name]: [e.target.value]});
-        this.setState({[e.target.name]: [e.target.value]});
+    delNote = (e) => {
+        e.preventDefault();
+
+        axios.post(`http://localhost:5000/api/v1/note/delete`, {id: e.target.parentNode.dataset.key})
+            .then(res => {
+                this.setState({ data: res.data });
+            })
+            .catch(error => {
+                console.log(error);
+            });
     }
 
-    handleSubmit = e => {
+    addNote = (e) => {
         e.preventDefault();
 
         const data = {
-            'title': this.state.title,
-            'value': this.state.value
+            'title': 'default',
+            'value': 'Edit text here...'
         };
         axios.post(`http://localhost:5000/api/v1/note/add`, data)
             .then(res => {
@@ -45,40 +52,26 @@ export default class App extends React.Component{
             .catch(error => {
                 console.log(error);
             });
-    }
 
-    delNote = (id, e) => {
-        e.preventDefault();
-
-        axios.post(`http://localhost:5000/api/v1/note/delete`, {id: id})
-            .then(res => {
-                this.setState({ data: res.data });
-            })
-            .catch(error => {
-                console.log(error);
-            });
     }
 
     render() {
+        
         return (
-            <div>
-                <form onSubmit={this.handleSubmit}>
-                    <label>
-                        Title:
-                        <input type="text" name="title" value={this.state.title} onChange={this.handleChange} />
-                    </label>
-                    <label>
-                        Text:
-                        <textarea name="value" value={this.state.value} onChange={this.handleChange} />
-                    </label>
-                    <input type="submit" value="Send" />
-                </form>
-                { this.state.data.map(d => 
-                    <div key={d.id}>
-                        <h2 onClick={(e) => this.delNote(d.id, e)}>{d.title}</h2>
-                        <ReactMarkdown source={d.text} />
-                    </div>
-                )}
+            <div className="row">
+                <div className="col">
+                    { this.state.data.map(d => 
+                        <div className="m-2 p-2 border bg-light" key={d.id} data-key={d.id}>
+                            <h2 onClick={(e) => this.delNote(e)}>{d.title}</h2>
+                            <EditableText text={d.text} id={d.id}/>
+                        </div>
+                    )}
+                </div>
+                <div className="col-4">
+                    <ul className="list-group">
+                        <button type="button" className="list-group-item" onClick={this.addNote}>Add note</button>
+                    </ul>
+                </div>
             </div>
         )
     }
