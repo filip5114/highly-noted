@@ -6,7 +6,7 @@ export default class EditableText extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            text: this.props.text,
+            text: this.props.title + '\n' + this.props.text,
             edit: false
         };
 
@@ -45,11 +45,12 @@ export default class EditableText extends React.Component{
     }
 
     render(){
-        const NoteText = ({ children }) => <p onClick={(e) => this.onClick(e)}>{children}</p>
         this.editor = <textarea name="text" value={this.state.text} onChange={this.handleChange} onBlur={this.onBlur} />
         
-        return this.state.edit ?
+        return (
+            this.state.edit ?
             this.editor
-            : <ReactMarkdown source={this.state.text} renderers={{ paragraph: (props) => <NoteText {...props} /> }}/>
+            : <div className="note" onClick={(e) => this.onClick(e)}><ReactMarkdown source={this.state.text} /></div>
+        )
     }
 }

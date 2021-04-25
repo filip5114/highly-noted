@@ -1,9 +1,6 @@
 import axios from 'axios';
 import React from 'react';
-// import ReactMarkdown from 'react-markdown';
 import EditableText from './EditableText';
-
-// import EditableText from './EditableText';
 
 export default class App extends React.Component{
     constructor(props) {
@@ -42,8 +39,7 @@ export default class App extends React.Component{
         e.preventDefault();
 
         const data = {
-            'title': 'default',
-            'value': 'Edit text here...'
+            'value': 'Default title\nEdit text here...'
         };
         axios.post(`http://localhost:5000/api/v1/note/add`, data)
             .then(res => {
@@ -56,14 +52,13 @@ export default class App extends React.Component{
     }
 
     render() {
-        
         return (
             <div className="row">
                 <div className="col">
                     { this.state.data.map(d => 
                         <div className="m-2 p-2 border bg-light" key={d.id} data-key={d.id}>
-                            <h2 onClick={(e) => this.delNote(e)}>{d.title}</h2>
-                            <EditableText text={d.text} id={d.id}/>
+                            <EditableText text={d.text} id={d.id} title={d.title}/>
+                            <button type="button" onClick={(e) => this.delNote(e)}>Delete note</button>
                         </div>
                     )}
                 </div>
