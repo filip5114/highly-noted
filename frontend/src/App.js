@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
-import EditableText from './EditableText';
+import {EditorState, convertToRaw} from 'draft-js';
+import MyEditor from './Editor';
 
 export default class App extends React.Component{
     constructor(props) {
@@ -11,6 +12,7 @@ export default class App extends React.Component{
 
         this.delNote = this.delNote.bind(this);
         this.addNote = this.addNote.bind(this);
+        this.handleBlur = this.handleBlur.bind(this);
     };
 
     componentDidMount = () => {
@@ -23,10 +25,10 @@ export default class App extends React.Component{
             });
     }
 
-    delNote = (e) => {
+    delNote = (e, id) => {
         e.preventDefault();
 
-        axios.post(`http://localhost:5000/api/v1/note/delete`, {id: e.target.parentNode.dataset.key})
+        axios.post(`http://localhost:5000/api/v1/note/delete`, {id: id})
             .then(res => {
                 this.setState({ data: res.data });
             })
@@ -39,7 +41,7 @@ export default class App extends React.Component{
         e.preventDefault();
 
         const data = {
-            'value': 'Default title\nEdit text here...'
+            'content': JSON.stringify(convertToRaw(EditorState.createEmpty().getCurrentContent()))
         };
         axios.post(`http://localhost:5000/api/v1/note/add`, data)
             .then(res => {
@@ -51,19 +53,33 @@ export default class App extends React.Component{
 
     }
 
+    handleBlur = (id, current_context) => {
+        const data = {
+          'id': id,
+          'content': JSON.stringify(convertToRaw(current_context))
+        };
+        console.log(data.id);
+    
+        axios.post(`http://localhost:5000/api/v1/note/edit`, data)
+          .then(res => {
+              console.log(res);
+          })
+          .catch(error => {
+              console.log(error);
+          });
+      }
+
     render() {
         return (
             <div className="row">
-                <div className="col">
+                <div className="col-2"></div>
+                <div className="col-8 mt-4">
                     { this.state.data.map(d => 
-                        <div className="m-2 p-2 border bg-light" key={d.id} data-key={d.id}>
-                            <EditableText text={d.text} id={d.id} title={d.title}/>
-                            <button type="button" onClick={(e) => this.delNote(e)}>Delete note</button>
-                        </div>
-                    )}
+                        <MyEditor id={d.id} content={d.content} key={d.id} data-key={d.id} delete={this.delNote} blur={this.handleBlur} />)
+                    }
                 </div>
-                <div className="col-4">
-                    <ul className="list-group">
+                <div className="col-2 bg-dark vh-100">
+                    <ul className="list-group p-2">
                         <button type="button" className="list-group-item" onClick={this.addNote}>Add note</button>
                     </ul>
                 </div>
