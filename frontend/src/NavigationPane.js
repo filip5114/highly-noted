@@ -58,7 +58,7 @@ export default class NavigationPane extends React.Component {
 
     render () {
         return (
-            <div id="pane" className="bg-dark w-100 shadow-sm">
+            <div id="pane" className="w-100">
                 <ul className="nav flex-column">
                     <li className="nav-item">
                         <button className="nav-link" aria-current="page" href="#" onClick={this.addNote}>New Note</button>
