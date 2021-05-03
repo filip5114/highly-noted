@@ -21,23 +21,31 @@ db.init_app(app)
 @app.route("/api", methods=['GET'])
 @cross_origin(origins='http://localhost:3000')
 def index():
-    notes = json.dumps([note.to_dict() for note in Note.query.order_by(Note.id).all()])
+    notes = json.dumps([note.to_dict() for note in Note.query.order_by(Note.id.desc()).all()])
     return Response(notes, mimetype="application/json", status=200)
+
+@app.route("/api/v1/note/get", methods=['GET'])
+@cross_origin(origins='http://localhost:3000')
+def get_note():
+    note = Note.query.filter_by(id=request.args.get('id')).first()
+    note = json.dumps(note.to_dict())
+    return Response(note, mimetype="application/json", status=200)
 
 @app.route("/api/v1/note/add", methods=['POST'])
 @cross_origin(origins='http://localhost:3000')
 def add_note():
     request_body = request.get_json()
-    db.session.add(Note(content=request_body.get('content')))
+    new_note = Note(content=request_body.get('content'))
+    db.session.add(new_note)
     db.session.commit()
-    notes = json.dumps([note.to_dict() for note in Note.query.order_by(Note.id).all()])
-    return Response(notes, mimetype="application/json", status=200)
+    notes = [note.to_dict() for note in Note.query.order_by(Note.id.desc()).all()]
+    result = {'new_note': new_note.to_dict(), 'notes': notes}
+    return Response(json.dumps(result), mimetype="application/json", status=200)
 
 @app.route("/api/v1/note/edit", methods=['POST'])
 @cross_origin(origins='http://localhost:3000')
 def edit_note():
     request_body = request.get_json()
-    print(f'elo1: {request_body}')
     Note.query.filter_by(id=request_body.get('id')).update(dict(content=request_body.get('content')))
     db.session.commit()
     return Response({'done'}, mimetype="application/json", status=200)
@@ -49,7 +57,7 @@ def delete_note():
     id = request_body.get('id')
     Note.query.filter_by(id=id).delete()
     db.session.commit()
-    notes = json.dumps([note.to_dict() for note in Note.query.order_by(Note.id).all()])
+    notes = json.dumps([note.to_dict() for note in Note.query.order_by(Note.id.desc()).all()])
     return Response(notes, mimetype="application/json", status=200)
 
 if __name__ == "__main__":

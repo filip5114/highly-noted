@@ -1,0 +1,45 @@
+@media (min-width: 768px){
+    #pane {
+        flex-flow: column nowrap;
+        left: 0;
+        position: absolute;
+        height: 100vh;
+    }
+    
+    li {
+        background-color: transparent;
+    }
+
+    .list-unstyled {
+        padding-left: 0;
+        list-style: none;
+    }
+    .align-items-center {
+        align-items: center !important;
+    }
+
+    .d-inline-flex {
+        display: inline-flex !important;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    button {
+        border: none;
+        background: none;
+    }
+}
+
+/*.fixed-left {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+}
+
+.navbar{
+    display: flex;
+} */
