@@ -1,4 +1,4 @@
-.DraftEditor-root {
+/* .DraftEditor-root {
     height: 100%;
     width: 100%;
     overflow-y: auto;
@@ -7,4 +7,41 @@
 .DraftEditor-editorContainer,
 .public-DraftEditor-content {
   height: 100%;
+} */
+
+.wrapper-class {
+  /* background-color: teal; */
+  /* height: 100%; */
+}
+
+.editor-class {
+  /* background-color: tomato; */
+  height: auto;
+  overflow: hidden;
+}
+
+.toolbar-class {
+  border: none;
+  border-radius: 0;
+  background-color: inherit;
+}
+
+.custom-button > a, .custom-button > a:hover {
+  text-decoration: none;
+  color: black;
+}
+
+.custom-button {
+  border: none;
+  background-color: inherit;
+}
+
+.custom-button:hover {
+  box-shadow: none;
+  background-color: #C0C0C0;
+}
+
+.custom-button[aria-selected="true"] {
+  box-shadow: none;
+  background-color: #C0C0C0;
 }

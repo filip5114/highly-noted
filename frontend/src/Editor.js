@@ -1,21 +1,42 @@
 import React from 'react';
-import {Editor, EditorState, convertFromRaw, convertToRaw, RichUtils} from 'draft-js';
+import {EditorState, convertFromRaw, convertToRaw} from 'draft-js';
 import axios from 'axios';
 import debounce from 'loadsh/debounce';
+import { Editor } from 'react-draft-wysiwyg';
+import '../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import 'draft-js/dist/Draft.css';
 import './Editor.css';
+
+import bold from './icons/type-bold.svg';
+import italic from './icons/type-italic.svg';
+import strikethrough from './icons/type-strikethrough.svg';
+import underline from './icons/type-underline.svg';
+import braces from './icons/braces.svg';
+import list_ol from './icons/list-ol.svg';
+import list_ul from './icons/list-ul.svg';
+import text_indent_left from './icons/text-indent-left.svg';
+import text_indent_right from './icons/text-indent-right.svg';
+import text_center from './icons/text-center.svg';
+import text_left from './icons/text-left.svg';
+import text_right from './icons/text-right.svg';
+import justify from './icons/justify.svg';
+import link from './icons/link.svg';
+import arrow_clockwise from './icons/arrow-clockwise.svg';
+import arrow_counterclockwise from './icons/arrow-counterclockwise.svg';
+import image from './icons/image.svg';
+import emoji_smile from './icons/emoji-smile.svg';
+import palette from './icons/palette.svg';
+
+
 
 export default class MyEditor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-        editorState: EditorState.createWithContent(convertFromRaw(JSON.parse(this.props.content)))
+        editorState: EditorState.moveFocusToEnd(EditorState.createWithContent(convertFromRaw(JSON.parse(this.props.content))))
     };
     this.onChange = this.onChange.bind(this);
-    this.setDomEditorRef = ref => this.domEditor = ref;
-    this.focus = () => this.domEditor.focus();
     this.delNote = this.delNote.bind(this);
-    this.setInlineStyle = this.setInlineStyle.bind(this);
   }
 
   delNote = (e, id) => {
@@ -36,11 +57,6 @@ export default class MyEditor extends React.Component {
     this.saveContent();
   }
 
-  setInlineStyle = (e, style) => {
-    e.preventDefault();
-    this.onChange(RichUtils.toggleInlineStyle(this.state.editorState, style));
-  }
-
   saveContent = debounce(() => {
     const data = {
       'id': this.props.id,
@@ -58,21 +74,9 @@ export default class MyEditor extends React.Component {
 
   render() {
     return (
-      <div className="px-4 flex-grow-1 d-flex flex-column">
-        <div className="row border-bottom border-secondary">
-          <div className="col flex-shrink-0">
-            <button type="button" className="btn" onMouseDown={(e) => this.setInlineStyle(e, 'BOLD')} data-toggle="tooltip" data-placement="bottom" title="Pogrubienie">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-type-bold" viewBox="0 0 16 16">
-                <path d="M8.21 13c2.106 0 3.412-1.087 3.412-2.823 0-1.306-.984-2.283-2.324-2.386v-.055a2.176 2.176 0 0 0 1.852-2.14c0-1.51-1.162-2.46-3.014-2.46H3.843V13H8.21zM5.908 4.674h1.696c.963 0 1.517.451 1.517 1.244 0 .834-.629 1.32-1.73 1.32H5.908V4.673zm0 6.788V8.598h1.73c1.217 0 1.88.492 1.88 1.415 0 .943-.643 1.449-1.832 1.449H5.907z"/>
-              </svg> 
-            </button>
-            <button type="button" className="btn" onMouseDown={(e) => this.setInlineStyle(e, 'ITALIC')} data-toggle="tooltip" data-placement="bottom" title="Kursywa">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-type-italic" viewBox="0 0 16 16">
-                <path d="M7.991 11.674 9.53 4.455c.123-.595.246-.71 1.347-.807l.11-.52H7.211l-.11.52c1.06.096 1.128.212 1.005.807L6.57 11.674c-.123.595-.246.71-1.346.806l-.11.52h3.774l.11-.52c-1.06-.095-1.129-.211-1.006-.806z"/>
-              </svg>
-            </button>
-          </div>
-          <div className="col flex-shrink-0 text-right">
+      <div className="container-fluid h-100 d-flex flex-column"> {/* px-4 */}
+        <div className="row">
+          <div className="col-md-12 text-right">
             <button type="button" className="btn" onClick={(e) => this.delNote(e, this.props.id)} data-toggle="tooltip" data-placement="bottom" title="Usuń notatkę">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" className="bi bi-trash" viewBox="0 0 16 16">
                 <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
@@ -81,9 +85,78 @@ export default class MyEditor extends React.Component {
             </button>
           </div>
         </div>
-        <div className="row">
-          <div className="col flex-grow-1 pt-2" key={this.props.id} data-key={this.props.id} onClick={this.focus}>
-            <Editor editorState={this.state.editorState} onChange={this.onChange} ref={this.setDomEditorRef} /> 
+        <div className="row flex-grow-1">
+          <div className="col-md-12 p-0" key={this.props.id} data-key={this.props.id} onClick={this.focus}>
+            <Editor editorState={this.state.editorState} onEditorStateChange={this.onChange} wrapperClassName="wrapper-class container-fluid h-100 d-flex flex-column p-0" editorClassName="editor-class flex-grow-1 p-0 m-0" toolbarClassName="toolbar-class border-bottom border-top border-secondary" toolbar={{
+              options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image', 'history', 'remove'],
+              inline: { 
+                options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
+                bold: {icon: bold, className: 'custom-button'},
+                italic: {icon: italic, className: 'custom-button'},
+                underline: {icon: underline, className: 'custom-button'},
+                strikethrough: {icon: strikethrough, className: 'custom-button'},
+                monospace: {icon: braces, className: 'custom-button'},
+                superscript: {className: 'custom-button'},
+                subscript: {className: 'custom-button'}
+              },
+              blockType: {
+                className: 'custom-button',
+                dropdownClassName: ''
+              },
+              fontSize: { 
+                className: 'custom-button'
+              },
+              fontFamily: {
+                className: 'custom-button',
+                dropdownClassName: ''
+              },
+              list: { 
+                unordered: { icon: list_ul, className: 'custom-button' },
+                ordered: { icon: list_ol, className: 'custom-button' },
+                indent: { icon: text_indent_left, className: 'custom-button' },
+                outdent: { icon: text_indent_right, className: 'custom-button' }
+              },
+              textAlign: { 
+                left: { icon: text_left, className: 'custom-button' },
+                center: { icon: text_center, className: 'custom-button' },
+                right: { icon: text_right, className: 'custom-button' },
+                justify: { icon: justify, className: 'custom-button' }
+              },
+              colorPicker: {
+                icon: palette,
+                className: 'custom-button',
+                popupClassName: ''
+              },
+              link: { 
+                popupClassName: '',
+                options: ['link'],
+                link: { icon: link, className: 'custom-button' },
+                unlink: {className: 'custom-button'}
+              },
+              embedded: {
+                // icon: code,
+                className: 'custom-button',
+                popupClassName: ''
+              },
+              emoji: {
+                icon: emoji_smile,
+                className: 'custom-button',
+                popupClassName: ''
+              },
+              image: {
+                icon: image,
+                className: 'custom-button',
+                popupClassName: '"demo-popup-custom"'
+              },
+              remove: { 
+                options: [],
+                className: 'custom-button'
+              },
+              history: { 
+                undo: { icon: arrow_counterclockwise, className: 'custom-button' },
+                redo: { icon: arrow_clockwise, className: 'custom-button' } 
+              },
+            }} /> 
           </div>
         </div>
       </div>
