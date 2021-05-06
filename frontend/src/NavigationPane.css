@@ -8,6 +8,7 @@
     
     li {
         background-color: transparent;
+        cursor: pointer;
     }
 
     .list-unstyled {
